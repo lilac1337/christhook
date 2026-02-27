@@ -42,12 +42,17 @@ void __fastcall hooks::applyMouseHk(CInput* _this, void* edx, Vector* viewAngles
 
     static float degTurned{};
 
+    const float power = 1.f; // 100% power
+    const float mYaw = 0.022f;
+    const float sensitivity = 2.8f; // you wouldn't hardcode either of these in a real cheat, but this was just a poc
+    // see https://github.com/lilac1337/gensokyo/blob/master/src/gensokyo/cheats/movement.cxx#L16 for how to do this stuff properly
+    
     const float targetDelta = math::rad2deg(std::asin(30.f / twoDVel));
     const float smoothedDelta = (cmd->tick_count || cmd->command_number) ? targetDelta - std::abs(degTurned) : targetDelta * (interfaces::gpGlobals->absoluteframetime / 0.01f); //hooks::keySpeed
     //const float smoothedDelta = targetDelta * (interfaces::gpGlobals->absoluteframetime / interfaces::gpGlobals->interval_per_tick);
-    const float targetMx = std::copysignf(smoothedDelta / 0.022f, mouseX);
-    const float adjustedMx = ((1.f - 1.f) * mouseX) + (1.f * targetMx);
-    const float smoothedMx = round(targetMx / 2.8f) * 2.8f;
+    const float targetMx = std::copysignf(smoothedDelta / mYaw, mouseX);
+    const float adjustedMx = ((1.f - power) * mouseX) + (power * targetMx);
+    const float smoothedMx = round(targetMx / sensitivity) * sensitivity;
 
     //spdlog::info("{}", interfaces::gpGlobals->absoluteframetime);
 
@@ -85,4 +90,5 @@ void hooks::unhook() {
     applyMouse.reset();
     controllerMove.reset();
     determineKeySpeed.reset();
+
 }
